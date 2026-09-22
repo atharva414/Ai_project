@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Based Real-Time Stress and Trauma Assessment Module — NHAA 14566</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="header-top">
+      <div>
+        <p class="program-name" data-i18n="programName">AI-Based Real-Time Stress and Trauma Assessment Module</p>
+        <p class="program-sub" data-i18n="programSub">National Helpline Against Atrocities · 14566</p>
+      </div>
+      <select id="lang-select" onchange="setLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+      </select>
+    </div>
+    <div class="channel-row">
+      <span class="channel-chip" data-i18n="chipHelpline">Helpline 14566</span>
+      <span class="channel-chip" data-i18n="chipPortal">Integrated Portal</span>
+      <span class="channel-chip" data-i18n="chipChatbot">Chatbot</span>
+      <span class="channel-chip" data-i18n="chipIvrs">IVRS</span>
+      <span class="channel-chip" data-i18n="chipApp">Mobile App</span>
+    </div>
+    <div class="steps" id="step-strip">
+      <div class="step" data-step="1"><span class="num">1</span><span class="label" data-i18n="stepConsent">Consent</span></div>
+      <div class="step" data-step="2"><span class="num">2</span><span class="label" data-i18n="stepNarrative">Narrative</span></div>
+      <div class="step" data-step="3"><span class="num">3</span><span class="label" data-i18n="stepCheck">Quick Check</span></div>
+      <div class="step" data-step="4"><span class="num">4</span><span class="label" data-i18n="stepResult">Result</span></div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===================== STEP 1 — CONSENT ===================== -->
+    <section class="screen active" id="screen-1" data-step="1">
+      <h1 class="screen-title" data-i18n="consentTitle">Before we begin</h1>
+      <p class="lead" data-i18n="consentLead">Victims and complainants contacting NHAA (14566), the Integrated Portal, chatbot, IVRS, or mobile app often carry serious emotional distress. This step helps route your case to the right kind of support, as early as possible.</p>
+
+      <div class="context-block">
+        <p data-i18n="consentContext1"><strong>Why we ask these questions.</strong> Distress arising from caste-based discrimination, violence, threats, social boycott, displacement, or prolonged legal proceedings can be hard to convey in a first conversation. A short structured check helps identify what kind of support — counselling, medical, legal, police, or protective — may be needed right away.</p>
+        <p data-i18n="consentContext2"><strong>What this tool is not.</strong> It does not diagnose any condition. Every assessment is reviewed by a trained counsellor or officer before action is taken — this only helps prioritise that review.</p>
+      </div>
+
+      <div class="consent-item">
+        <input type="checkbox" id="consent-1" onchange="checkConsent()">
+        <label for="consent-1" data-i18n="consentCheck1">I understand this tool assists — and does not replace — review by a trained professional.</label>
+      </div>
+      <div class="consent-item">
+        <input type="checkbox" id="consent-2" onchange="checkConsent()">
+        <label for="consent-2" data-i18n="consentCheck2">I consent to my responses being used to generate a stress and vulnerability assessment, for the purpose of referring me to appropriate support.</label>
+      </div>
+
+      <p class="privacy-note" data-i18n="consentPrivacy">Your responses are kept confidential and shared only with the counsellor, officer, or authority relevant to your case. You may stop at any point without affecting your complaint.</p>
+
+      <button class="btn btn-primary full" id="consent-continue" disabled onclick="goToStep(2)" data-i18n="consentContinue">Continue</button>
+    </section>
+
+    <!-- ===================== STEP 2 — NARRATIVE + VOICE ===================== -->
+    <section class="screen" id="screen-2" data-step="2">
+      <button class="back-link" onclick="goToStep(1)" data-i18n="back">← Back</button>
+      <h1 class="screen-title" data-i18n="narrativeTitle">Tell us what's happening</h1>
+      <p class="lead" data-i18n="narrativeLead">Write in your own words — as much or as little as you're comfortable sharing. There is no right way to describe it.</p>
+
+      <label class="field-label" for="narrative-text" data-i18n="narrativeLabel">Your narrative</label>
+      <textarea id="narrative-text" rows="5" data-i18n-placeholder="narrativePlaceholder" placeholder="e.g. Since I filed the complaint, my family has been threatened and we've been isolated by our neighbours…"></textarea>
+
+      <div class="voice-card">
+        <div class="voice-card-title" data-i18n="voiceTitle">Voice sample (optional)</div>
+        <div class="voice-card-note" data-i18n="voiceNote">Simulated for this demo. A deployed system would analyse pitch variation, pause patterns, and speaking rate on-device or on a secure server, never storing raw audio without separate consent.</div>
+        <div class="waveform" id="waveform"></div>
+        <button class="btn btn-secondary full" id="voice-btn" onclick="toggleVoiceRecording()" data-i18n="voiceStart">Record 4-second sample</button>
+        <div class="voice-metrics hidden" id="voice-metrics">
+          <div class="voice-metric"><div class="v" id="metric-pitch">–</div><div class="l" data-i18n="metricPitch">Pitch variability</div></div>
+          <div class="voice-metric"><div class="v" id="metric-pause">–</div><div class="l" data-i18n="metricPause">Pause ratio</div></div>
+          <div class="voice-metric"><div class="v" id="metric-rate">–</div><div class="l" data-i18n="metricRate">Speaking rate</div></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary full" onclick="goToStep(3)" data-i18n="continueBtn">Continue</button>
+    </section>
+
+    <!-- ===================== STEP 3 — STRUCTURED QUESTIONS ===================== -->
+    <section class="screen" id="screen-3" data-step="3">
+      <button class="back-link" onclick="goToStep(2)" data-i18n="back">← Back</button>
+      <h1 class="screen-title" data-i18n="checkTitle">A few quick questions</h1>
+      <p class="lead" data-i18n="checkLead">These help us weigh what you've written. Answer as best you can — you can skip any you're unsure about.</p>
+
+      <div class="q-card">
+        <div class="q-row">
+          <div class="q-text" data-i18n="qIntensity">How intense is the distress right now?</div>
+          <select id="q-intensity"><option value="0" data-i18n="optNone">None / Low</option><option value="1" data-i18n="optMild">Mild</option><option value="2" selected data-i18n="optModerate">Moderate</option><option value="3" data-i18n="optSevere">Severe</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qDuration">How long has this been going on?</div>
+          <select id="q-duration"><option value="0" data-i18n="optJustNow">Just now</option><option value="1" data-i18n="optHours">Hours</option><option value="2" selected data-i18n="optDays">Days</option><option value="3" data-i18n="optWeeks">Weeks or more</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qFunctioning">Impact on daily life (sleep, work, eating)?</div>
+          <select id="q-functioning"><option value="0" data-i18n="optLittle">Little</option><option value="1" data-i18n="optSome">Some</option><option value="2" selected data-i18n="optQuite">Quite a bit</option><option value="3" data-i18n="optSevere2">Severe</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qFear">Do you feel unsafe, threatened, or afraid to report?</div>
+          <select id="q-fear"><option value="0" selected data-i18n="optNo">No</option><option value="1" data-i18n="optSlightly">Slightly</option><option value="2" data-i18n="optFrequently">Often</option><option value="3" data-i18n="optConstantly">Constantly</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qIsolation">Has your family faced social boycott or isolation?</div>
+          <select id="q-isolation"><option value="0" selected data-i18n="optNo">No</option><option value="1" data-i18n="optSlightly">A little</option><option value="2" data-i18n="optFrequently">Noticeably</option><option value="3" data-i18n="optConstantly">Severely</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qMedical">Was anyone physically hurt and in need of medical care?</div>
+          <select id="q-medical"><option value="0" selected data-i18n="optNo">No</option><option value="1" data-i18n="optSlightly">Minor</option><option value="2" data-i18n="optFrequently">Yes</option><option value="3" data-i18n="optConstantly">Urgent</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qLegal">Is an ongoing legal case adding to your distress?</div>
+          <select id="q-legal"><option value="0" selected data-i18n="optNo">No</option><option value="1" data-i18n="optSlightly">A little</option><option value="2" data-i18n="optFrequently">Yes</option><option value="3" data-i18n="optConstantly">Greatly</option></select>
+        </div>
+        <div class="q-row">
+          <div class="q-text" data-i18n="qSafety">Any thoughts of harming yourself?</div>
+          <select id="q-safety"><option value="0" selected data-i18n="optNo">No</option><option value="1" data-i18n="optPassing">Passing thoughts</option><option value="2" data-i18n="optFrequently">Frequent</option><option value="3" data-i18n="optPlan">Yes — with a plan</option></select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary full" onclick="runAssessment()" data-i18n="runAssessment">Generate Assessment</button>
+    </section>
+
+    <!-- ===================== STEP 4 — RESULT ===================== -->
+    <section class="screen" id="screen-4" data-step="4">
+      <h1 class="screen-title" data-i18n="resultTitle">Assessment result</h1>
+
+      <div class="svi-panel">
+        <div class="svi-number" id="svi-number">–</div>
+        <div class="svi-scale" data-i18n="sviScale">Stress Vulnerability Index (0–100)</div>
+        <div class="category-badge" id="category-badge">–</div>
+        <div class="force-note hidden" id="force-note" data-i18n="forceNote">Escalated automatically due to a detected safety risk.</div>
+      </div>
+
+      <div class="section-label" data-i18n="indicatorsLabel">Indicators detected</div>
+      <div class="tag-row" id="tag-row"></div>
+
+      <div class="section-label" data-i18n="pathwayLabel">Recommended support pathway</div>
+      <div id="rec-list"></div>
+
+      <div class="disclaimer-box" data-i18n="resultDisclaimer">This is a decision-support output only. It does not diagnose, and a trained counsellor or officer will review this case before any action is taken.</div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary full" onclick="goToStep(5)" data-i18n="viewStakeholders">View support contacts</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary full" onclick="resetAssessment()" data-i18n="newAssessment">Start a new assessment</button>
+      </div>
+    </section>
+
+    <!-- ===================== STEP 5 — STAKEHOLDERS / CONTACTS ===================== -->
+    <section class="screen" id="screen-5" data-step="5">
+      <button class="back-link" onclick="goToStep(4)" data-i18n="backToResult">← Back to result</button>
+      <h1 class="screen-title" data-i18n="stakeholdersTitle">Support &amp; referral network</h1>
+
+      <div class="help-alert">
+        <div class="help-alert-title" data-i18n="emergencyTitle">If you are in immediate danger, contact emergency services now.</div>
+        <div class="help-alert-body" data-i18n="emergencyBody">This screen lists direct contacts. It does not place a call automatically.</div>
+      </div>
+
+      <div class="contact-card"><div><div class="contact-title" data-i18n="c1title">Emergency Services</div><div class="contact-desc" data-i18n="c1desc">Police / medical emergency</div><div class="contact-value">112</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="c2title">National Helpline Against Atrocities</div><div class="contact-desc" data-i18n="c2desc">Victim / complainant support, 24×7</div><div class="contact-value">14566</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="c3title">KIRAN Mental Health Helpline</div><div class="contact-desc" data-i18n="c3desc">Toll-free, 24×7 counselling support</div><div class="contact-value">1800-599-0019</div></div></div>
+
+      <div class="section-label" data-i18n="stakeholderNetworkLabel">Referral &amp; oversight bodies</div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s1title">Department of Social Justice and Empowerment</div><div class="contact-desc" data-i18n="s1desc">Policy oversight and welfare schemes for victims</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s2title">State Governments &amp; Union Territories</div><div class="contact-desc" data-i18n="s2desc">Regional implementation and case coordination</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s3title">District Administration</div><div class="contact-desc" data-i18n="s3desc">Local legal aid, compensation, and rehabilitation processing</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s4title">Counsellors &amp; Mental Health Professionals</div><div class="contact-desc" data-i18n="s4desc">Psychological first aid and ongoing counselling</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s5title">Law Enforcement Agencies</div><div class="contact-desc" data-i18n="s5desc">Police intervention and witness protection</div></div></div>
+      <div class="contact-card"><div><div class="contact-title" data-i18n="s6title">Rehabilitation &amp; Welfare Authorities</div><div class="contact-desc" data-i18n="s6desc">Long-term rehabilitation, displacement, and welfare support</div></div></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
